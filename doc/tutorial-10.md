@@ -35,7 +35,7 @@ protocols. Ajax exploits more [web techniques][5]:
 * HTML and CSS for presentation
 * DOM for dynamic display and interaction with data
 * XML/JSON for the data representation
-* XMLHttpRequest object for aynchronous communication
+* XMLHttpRequest object for asynchronous communication
 * JavaScript to bring all the above techniques together
 
 A sequence diagram which visualizes the above techniques interaction
@@ -456,7 +456,7 @@ image.
 Now click `_fetch` from the `Name/Path` column. If the `Header`
 subpane is not alreay selected, select it and scroll until you can see
 the `Form Data` area. You should now see the following view which
-reports `calculate` as the value of the `remote` key, and `[1 2 3 4]`
+reports `calculate` as the value of the `remote` key, and `[1 1 0 0]`
 as the value of the passed params to it.
 
 ![network-03][23]
