@@ -27,16 +27,23 @@
   ;; ring tasks configuration
   :ring {:handler modern-cljs.core/handler}
 
-  ;; cljsbuild tasks configuration
-  :cljsbuild {:builds
-              [{;; clojurescript source code path
-                :source-paths ["src/cljs"]
-
-                ;; Google Closure Compiler options
-                :compiler {;; the name of emitted JS script file
-                           :output-to "resources/public/js/modern.js"
-
-                           ;; minimum optimization
-                           :optimizations :whitespace
-                           ;; prettyfying emitted JS
-                           :pretty-print true}}]})
+  :cljsbuild {
+      :builds {
+            :dev {
+                   :source-paths ["src/cljs" "src/brepl"]
+                   :compiler {
+                       :output-to "resources/public/js/modern_dbg.js"
+                       :optimizations :whitespace
+                       :pretty-print true } }
+            :pre-prod {
+                    :source-paths ["src/cljs" "src/brepl"]
+                    :compiler {
+                        :output-to "resources/public/js/modern_pre.js"
+                        :optimizations :simple
+                                :pretty-print false } }
+            :prod {
+                    :source-paths ["src/cljs"]
+                    :compiler {
+                            :output-to "resources/public/js/modern.js"
+                            :optimizations :advanced
+                            :pretty-print false} } } } )
