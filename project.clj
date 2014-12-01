@@ -19,6 +19,8 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2069"]
                  [compojure "1.1.6"]
+                 [org.clojars.magomimmo/shoreleave-remote-ring "0.3.1"]
+                 [org.clojars.magomimmo/shoreleave-remote "0.3.1"]
                  [domina "1.0.3-SNAPSHOT"]
                  [hiccups "0.2.0"] ]
 
@@ -26,7 +28,7 @@
             [lein-ring "0.8.8"]]
 
   ;; ring tasks configuration
-  :ring {:handler modern-cljs.core/handler}
+  :ring {:handler modern-cljs.remotes/app}
 
   ;; cljsbuild tasks configuration
   :cljsbuild {:builds
