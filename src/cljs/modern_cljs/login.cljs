@@ -1,25 +1,22 @@
 (ns modern-cljs.login
   (:require [domina :refer [by-id value]]
-            [domina.events :refer [listen!]]))
+            [domina.events :refer [listen! prevent-default]]))
 
-(defn validate-form []
-  ;; get email and password element using (by-id id)
-  (let [email (by-id "email")
-        password (by-id "password")]
-    ;; get email and password value using (value el)
-    (if (and (> (count (value email)) 0)
-             (> (count (value password)) 0))
-      true
-      (do (js/alert "Please, complete the form!")
-          false))))
+(defn validate-form [e]
+  (let [ email (value (by-id "email"))
+         password (value (by-id "password")) ]
+    (if (or (empty? email) (empty? password))
+      (do
+        (prevent-default e)
+        (js/alert "Please, complete the form!") )
+      true ) ) )
 
 ;; define the function to attach validate-form to onsubmit event of
 ;;the form
 (defn ^:export init []
   ;; verify that js/document exists and that it has a getElementById
   ;; property
-  (if (and js/document
-           (.-getElementById js/document))
+  (if (and js/document (aget js/document "getElementById"))
     ;; get loginForm by element id and set its onsubmit property to
     ;; our validate-form function
-    (set! (.-onsubmit (by-id "loginForm")) validate-form)))
+    (listen! (by-id "submit") :click validate-form) ) )
