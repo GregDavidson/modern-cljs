@@ -1,49 +1,43 @@
 (ns modern-cljs.login
   (:require-macros [hiccups.core :refer [html]])
-  (:require [domina :refer [by-id by-class value append! prepend! destroy! log]]
-            [domina.events :refer [listen! prevent-default]]
-            [hiccups.runtime]))
+  (:require
+    [clojure.set :refer [subset?]]
+    [domina :refer [by-id by-class value append! prepend! destroy! attr log sel add-class!]]
+    [domina.events :refer [listen! prevent-default]]
+    [hiccups.runtime :as hiccupsrt] ) )
 
-(def ^:dynamic *password-re* #"^(?=.*\d).{4,8}$")
+(def field-ids ["email" "password"])
 
-(def ^:dynamic *email-re* #"^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$")
+(def node-ids (conj field-ids "loginForm" "submit"))
 
-(defn validate-email [email]
-  (destroy! (by-class "email"))
-  (if (not (re-matches *email-re* (value email)))
+(declare id-node) ;; defined in (init) below
+
+(defn id-value [id] (value (id-node id)))
+
+(defn validate-field [id]
+  (destroy! (by-class id))
+  (if (not (re-matches (re-pattern (attr id :pattern)) (id-value id)))
     (do
-      (prepend! (by-id "loginForm") (html [:div.help.email "Wrong email"]))
-      false)
-    true))
-
-(defn validate-password [password]
-  (destroy! (by-class "password"))
-  (if (not (re-matches *password-re* (value password)))
-    (do
-      (append! (by-id "loginForm") (html [:div.help.password "Wrong password"]))
-      false)
-    true))
+      (prepend! (id-node "loginForm") (html [:div.help (str "Bad " id)]))
+      (add-class! (sel "#loginForm>div.help") id)
+      false )
+    true ) )
 
 (defn validate-form [evt]
-  (let [email (by-id "email")
-        password (by-id "password")
-        email-val (value email)
-        password-val (value password)]
-    (if (or (empty? email-val) (empty? password-val))
-      (do
-        (destroy! (by-class "help"))
-        (prevent-default evt)
-        (append! (by-id "loginForm") (html [:div.help "Please complete the form"])))
-      (if (and (validate-email email)
-               (validate-password password))
-        true
-        (prevent-default evt)))))
+  (if (some #(empty? (id-value %)) field-ids)
+    (do
+      (prevent-default evt)
+      (destroy! (by-class "help"))
+      (append! (id-node "loginForm") (html [:div.help "Please complete the form"])) )
+    (if (every? validate-field field-ids)
+      true
+      (prevent-default evt) ) ) )
 
 (defn ^:export init []
-  (if (and js/document
-           (aget js/document "getElementById"))
-    (let [email (by-id "email")
-          password (by-id "password")]
-      (listen! (by-id "submit") :click (fn [evt] (validate-form evt)))
-      (listen! email :blur (fn [evt] (validate-email email)))
-      (listen! password :blur (fn [evt] (validate-password password))))))
+  (if (not (and js/document (aget js/document "getElementById")))
+    (js/alert "Expected document.getElementById")
+    (do
+      (assert (every? #(by-id %) node-ids)) ; check node-ids against document
+      (def id-node (zipmap node-ids (map #(by-id %) node-ids)))
+      (listen! (id-node "submit") :click validate-form)
+      (map #(listen! (id-node %) :blur (fn [evt] (validate-field %))) field-ids) ) ) )
