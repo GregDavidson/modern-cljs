@@ -1,10 +1,9 @@
-.DS_Store
 /repl
 /target
 /lib
 /classes
 /checkouts
-/resources/public/js/*
+/dev-resources/public/js/*
 /out
 pom.xml
 *.jar
